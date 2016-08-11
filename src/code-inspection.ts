@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const EXTENSION_UNIQUE_NAME = 'zaggino.' + EXTENSION_NAME;
   const nodeDomain = require('./node-domain');
   const log = require('./log');
-  const LINTER_NAME = 'TypeScript';
+  const LINTER_NAME = 'Flow';
 
   function handleScanFile(text, fullPath) {
     throw new Error(LINTER_NAME + ' sync code inspection is not available, use async for ' + fullPath);
@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   function handleScanFileAsync(text, fullPath): JQueryPromise<CodeInspectionReport> {
     const deferred = $.Deferred();
     const projectRoot = ProjectManager.getProjectRoot().fullPath;
-    nodeDomain.exec('getDiagnostics', projectRoot, fullPath, text)
+    nodeDomain.exec('scanFileWithFlow', projectRoot, fullPath)
       .then(function (report: CodeInspectionReport) {
 
         // set gutter marks using brackets-inspection-gutters module
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
   }
 
   module.exports = function () {
-    ['ts', 'tsx'].forEach(function (extension) {
+    ['js', 'jsx'].forEach(function (extension) {
       const language = LanguageManager.getLanguageForExtension(extension);
       if (language) {
         CodeInspection.register(language.getId(), {
