@@ -1,0 +1,13 @@
+{
+  "extends": "tslint:latest",
+  "rules": {
+    "interface-name": false,
+    "member-access": false,
+    "no-var-requires": false,
+    "object-literal-sort-keys": false,
+    "ordered-imports": false,
+    "quotemark": [true, "single"],
+    "trailing-comma": [true, "never"],
+    "variable-name": false
+  }
+}

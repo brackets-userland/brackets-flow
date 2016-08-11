@@ -1,0 +1,36 @@
+{
+  "name": "brackets-flow",
+  "version": "1.0.0",
+  "title": "Flow",
+  "description": "Adds Flow support to Brackets",
+  "keywords": [
+    "brackets-extension",
+    "flow"
+  ],
+  "homepage": "https://github.com/zaggino/brackets-flow",
+  "bugs": "https://github.com/zaggino/brackets-flow/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Martin Zagora",
+    "email": "zaggino@gmail.com",
+    "url": "https://github.com/zaggino"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zaggino/brackets-flow.git"
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "test": "typings install && tsc && tslint -c tslint.json --project tsconfig.json",
+    "prepublish": "typings install && rimraf dist && tsc"
+  },
+  "dependencies": {
+    "brackets-inspection-gutters": "^0.2.5"
+  },
+  "devDependencies": {
+    "rimraf": "^2.5.4"
+  },
+  "engines": {
+    "brackets": ">=1.7.0"
+  }
+}
