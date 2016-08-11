@@ -29,7 +29,9 @@
     "cross-spawn": "^4.0.0"
   },
   "devDependencies": {
-    "rimraf": "^2.5.4"
+    "rimraf": "^2.5.4",
+    "tslint": "^3.14.0",
+    "typescript": "^2.0.0"
   },
   "engines": {
     "brackets": ">=1.7.0"

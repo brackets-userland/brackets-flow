@@ -91,7 +91,7 @@ export function scanFileWithFlow(
   }
   const flowExecName = process.platform === 'win32' ? 'flow.cmd' : 'flow';
   const flowExecPath = path.resolve(projectRoot, 'node_modules', '.bin', flowExecName);
-  spawnWrapper(flowExecPath, ['--json'], { cwd: projectRoot }, (err: Error, result) => {
+  spawnWrapper(flowExecPath, ['--show-all-errors', '--json'], { cwd: projectRoot }, (err: Error, result) => {
     if (err) {
       callback(err);
       return;
