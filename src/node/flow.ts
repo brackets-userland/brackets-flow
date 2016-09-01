@@ -6,6 +6,7 @@ import {
 } from '../../node_modules/brackets-inspection-gutters/src/main.d.ts';
 
 const spawn = require('cross-spawn');
+const FLOW_TIMEOUT = 3000;
 
 function fileExists(fullPath: string): boolean {
   try {
@@ -41,6 +42,7 @@ function spawnWrapper(cmd: string, args: string[], opts: any, callback): void {
     callback(err);
   });
 
+  return child;
 }
 
 function createCodeInspectionReport(filePath: string, flowResult): CodeInspectionReport {
@@ -91,7 +93,12 @@ export function scanFileWithFlow(
   }
   const flowExecName = process.platform === 'win32' ? 'flow.cmd' : 'flow';
   const flowExecPath = path.resolve(projectRoot, 'node_modules', '.bin', flowExecName);
+  let resolved = false;
   spawnWrapper(flowExecPath, ['--show-all-errors', '--json'], { cwd: projectRoot }, (err: Error, result) => {
+    resolved = true;
+    if (resolved) {
+      return;
+    }
     if (err) {
       callback(err);
       return;
@@ -103,4 +110,17 @@ export function scanFileWithFlow(
       callback(err);
     }
   });
+  setTimeout(() => {
+    resolved = true;
+    if (resolved) {
+      return;
+    }
+    callback(null, {
+      errors: [{
+        type: 'problem_type_error',
+        message: `FlowError: 'Timed out after waiting ${FLOW_TIMEOUT}ms`,
+        pos: { line: 0, ch: 0 }
+      }]
+    });
+  }, FLOW_TIMEOUT);
 }
