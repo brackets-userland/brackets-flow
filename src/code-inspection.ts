@@ -1,6 +1,6 @@
-import { CodeInspectionReport } from '../node_modules/brackets-inspection-gutters/src/main.d.ts';
+import { CodeInspectionReport } from './types';
 
-define(function (require, exports, module) {
+define((require, exports, module) => {
 
   const CodeInspection = brackets.getModule('language/CodeInspection');
   const LanguageManager = brackets.getModule('language/LanguageManager');
@@ -20,7 +20,7 @@ define(function (require, exports, module) {
     const deferred = $.Deferred();
     const projectRoot = ProjectManager.getProjectRoot().fullPath;
     nodeDomain.exec('scanFileWithFlow', projectRoot, fullPath)
-      .then(function (report: CodeInspectionReport) {
+      .then((report: CodeInspectionReport) => {
 
         // set gutter marks using brackets-inspection-gutters module
         const w = (<any> window);
@@ -33,14 +33,14 @@ define(function (require, exports, module) {
         }
 
         deferred.resolve(report);
-      }, function (err) {
+      }, (err) => {
         deferred.reject(err);
       });
     return deferred.promise();
   }
 
-  module.exports = function () {
-    ['js', 'jsx'].forEach(function (extension) {
+  module.exports = () => {
+    ['js', 'jsx'].forEach((extension) => {
       const language = LanguageManager.getLanguageForExtension(extension);
       if (language) {
         CodeInspection.register(language.getId(), {

@@ -1,9 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as log from './log';
-import {
-  CodeInspectionResult, CodeInspectionReport
-} from '../../node_modules/brackets-inspection-gutters/src/main.d.ts';
+import { CodeInspectionResult, CodeInspectionReport } from '../types';
 
 const spawn = require('cross-spawn');
 const FLOW_TIMEOUT = 3000;
