@@ -3,6 +3,19 @@ import * as path from 'path';
 import * as log from './log';
 import { CodeInspectionResult, CodeInspectionReport } from '../types';
 
+export interface FlowResult {
+  errors: Array<{
+    level: string,
+    message: Array<{
+      path: string,
+      type: string,
+      descr: string,
+      line: number,
+      start: number
+    }>
+  }>;
+};
+
 const spawn = require('cross-spawn');
 const FLOW_TIMEOUT = 3000;
 
@@ -43,7 +56,7 @@ function spawnWrapper(cmd: string, args: string[], opts: any, callback): void {
   return child;
 }
 
-function createCodeInspectionReport(filePath: string, flowResult): CodeInspectionReport {
+function createCodeInspectionReport(filePath: string, flowResult: FlowResult): CodeInspectionReport {
   const errors: CodeInspectionResult[] = [];
 
   flowResult.errors.forEach(flowError => {
@@ -74,12 +87,58 @@ function createCodeInspectionReport(filePath: string, flowResult): CodeInspectio
   return { errors };
 }
 
+const _getFlowResults: { [root: string]: Promise<FlowResult> } = {};
+function getFlowResult(projectRoot: string): Promise<FlowResult> {
+  if (_getFlowResults[projectRoot]) { return _getFlowResults[projectRoot]; }
+  _getFlowResults[projectRoot] = new Promise((resolve, reject) => {
+
+    const flowExecName = process.platform === 'win32' ? 'flow.cmd' : 'flow';
+    const flowExecPath = path.resolve(projectRoot, 'node_modules', '.bin', flowExecName);
+    let resolved = false;
+    let timedOut = false;
+
+    const timeoutID = setTimeout(() => {
+      if (resolved || timedOut) { return; }
+      timedOut = true;
+      const err = new Error();
+      err.name = 'TimeoutError';
+      return reject(err);
+    }, FLOW_TIMEOUT);
+
+    spawnWrapper(flowExecPath, ['--show-all-errors', '--json'], { cwd: projectRoot }, (err: Error, result) => {
+      if (resolved || timedOut) { return; }
+      resolved = true;
+      clearTimeout(timeoutID);
+
+      if (err) {
+        return reject(err);
+      }
+      try {
+        return resolve(JSON.parse(result));
+      } catch (err) {
+        log.error('getFlowResult-parse-error', err.stack);
+        return reject(err);
+      }
+    });
+
+  }).then(res => {
+    _getFlowResults[projectRoot] = undefined;
+    return res;
+  }).catch(err => {
+    _getFlowResults[projectRoot] = undefined;
+    throw err;
+  });
+  return _getFlowResults[projectRoot];
+}
+
 export function scanFileWithFlow(
   projectRoot: string, fullPath: string, callback: (err?: Error, result?: CodeInspectionReport) => void
 ) {
+
   if (!hasFlowConfig(projectRoot)) {
     return callback(null, { errors: [] });
   }
+
   if (!hasFlowBin(projectRoot)) {
     return callback(null, {
       errors: [{
@@ -89,35 +148,25 @@ export function scanFileWithFlow(
       }]
     });
   }
-  const flowExecName = process.platform === 'win32' ? 'flow.cmd' : 'flow';
-  const flowExecPath = path.resolve(projectRoot, 'node_modules', '.bin', flowExecName);
-  let resolved = false;
-  let timedOut = false;
-  spawnWrapper(flowExecPath, ['--show-all-errors', '--json'], { cwd: projectRoot }, (err: Error, result) => {
-    if (resolved || timedOut) { return; }
-    resolved = true;
 
-    if (err) {
-      callback(err);
-      return;
+  getFlowResult(projectRoot).then(res => {
+
+    callback(null, createCodeInspectionReport(fullPath, res));
+
+  }).catch(err => {
+
+    if (err.name === 'TimeoutError') {
+      return callback(null, {
+        errors: [{
+          type: 'problem_type_error',
+          message: `FlowError: Timed out after waiting ${FLOW_TIMEOUT}ms`,
+          pos: { line: 0, ch: 0 }
+        }]
+      });
     }
-    try {
-      callback(null, createCodeInspectionReport(fullPath, JSON.parse(result)));
-    } catch (err) {
-      log.error('createCodeInspectionReport-error', err.stack);
-      callback(err);
-    }
+
+    callback(err);
+
   });
-  setTimeout(() => {
-    if (resolved || timedOut) { return; }
-    timedOut = true;
 
-    callback(null, {
-      errors: [{
-        type: 'problem_type_error',
-        message: `FlowError: Timed out after waiting ${FLOW_TIMEOUT}ms`,
-        pos: { line: 0, ch: 0 }
-      }]
-    });
-  }, FLOW_TIMEOUT);
 }
