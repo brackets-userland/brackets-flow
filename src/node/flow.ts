@@ -92,11 +92,11 @@ export function scanFileWithFlow(
   const flowExecName = process.platform === 'win32' ? 'flow.cmd' : 'flow';
   const flowExecPath = path.resolve(projectRoot, 'node_modules', '.bin', flowExecName);
   let resolved = false;
+  let timedOut = false;
   spawnWrapper(flowExecPath, ['--show-all-errors', '--json'], { cwd: projectRoot }, (err: Error, result) => {
+    if (resolved || timedOut) { return; }
     resolved = true;
-    if (resolved) {
-      return;
-    }
+
     if (err) {
       callback(err);
       return;
@@ -109,10 +109,9 @@ export function scanFileWithFlow(
     }
   });
   setTimeout(() => {
-    resolved = true;
-    if (resolved) {
-      return;
-    }
+    if (resolved || timedOut) { return; }
+    timedOut = true;
+
     callback(null, {
       errors: [{
         type: 'problem_type_error',
