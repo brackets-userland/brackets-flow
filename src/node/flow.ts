@@ -84,7 +84,7 @@ export function scanFileWithFlow(
     return callback(null, {
       errors: [{
         type: 'problem_type_error',
-        message: `FlowError: 'Can't locate node_modules/.bin/flow in your project, please install flow-bin`,
+        message: `FlowError: Can't locate node_modules/.bin/flow in your project, please install flow-bin`,
         pos: { line: 0, ch: 0 }
       }]
     });
@@ -115,7 +115,7 @@ export function scanFileWithFlow(
     callback(null, {
       errors: [{
         type: 'problem_type_error',
-        message: `FlowError: 'Timed out after waiting ${FLOW_TIMEOUT}ms`,
+        message: `FlowError: Timed out after waiting ${FLOW_TIMEOUT}ms`,
         pos: { line: 0, ch: 0 }
       }]
     });
