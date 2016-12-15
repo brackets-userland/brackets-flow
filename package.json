@@ -1,6 +1,6 @@
 {
   "name": "brackets-flow",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "title": "Flow",
   "description": "Adds Flow support to Brackets",
   "keywords": [
@@ -21,20 +21,22 @@
   },
   "scripts": {
     "dev": "tsc --watch",
-    "test": "tsc && tslint -c tslint.json --project tsconfig.json",
-    "prepublish": "rimraf ./dist && tsc"
+    "test": "npm run prepublish",
+    "prepublish": "npm prune && npm update && npm run build && npm run lint",
+    "build": "rimraf ./dist && tsc",
+    "lint": "tslint -c tslint.json --project tsconfig.json"
   },
   "dependencies": {
-    "brackets-inspection-gutters": "^0.2.5",
-    "cross-spawn": "^4.0.0"
+    "brackets-inspection-gutters": "^0.2.8",
+    "cross-spawn": "^5.0.1"
   },
   "devDependencies": {
-    "@types/es6-promise": "^0.0.31",
-    "@types/jquery": "^1.10.31",
-    "@types/node": "^6.0.38",
+    "@types/es6-promise": "^0.0.32",
+    "@types/jquery": "^2.0.34",
+    "@types/node": "^6.0.52",
     "rimraf": "^2.5.4",
-    "tslint": "^3.14.0",
-    "typescript": "^2.0.2"
+    "tslint": "^4.0.2",
+    "typescript": "^2.1.4"
   },
   "engines": {
     "brackets": ">=1.7.0"

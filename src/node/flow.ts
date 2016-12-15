@@ -41,7 +41,7 @@ function spawnWrapper(cmd: string, args: string[], opts: any, callback): void {
   // const stderr = [];
   const child = spawn(cmd, args, opts);
 
-  child.stdout.on('data', data => stdout.push(data));
+  child.stdout.on('data', (data) => stdout.push(data));
   // child.stderr.on('data', data => stderr.push(data));
 
   child.once('close', (code: number) => {
@@ -59,11 +59,11 @@ function spawnWrapper(cmd: string, args: string[], opts: any, callback): void {
 function createCodeInspectionReport(filePath: string, flowResult: FlowResult): CodeInspectionReport {
   const errors: CodeInspectionResult[] = [];
 
-  flowResult.errors.forEach(flowError => {
+  flowResult.errors.forEach((flowError) => {
 
-    const comments = flowError.message.filter(x => x.type === 'Comment').map(x => x.descr);
+    const comments = flowError.message.filter((x) => x.type === 'Comment').map((x) => x.descr);
 
-    flowError.message.forEach(flowMessage => {
+    flowError.message.forEach((flowMessage) => {
       const isForFilePath = path.resolve(filePath) === path.resolve(flowMessage.path);
       if (!isForFilePath) { return; }
 
@@ -121,10 +121,10 @@ function getFlowResult(projectRoot: string): Promise<FlowResult> {
       }
     });
 
-  }).then(res => {
+  }).then((res) => {
     _getFlowResults[projectRoot] = undefined;
     return res;
-  }).catch(err => {
+  }).catch((err) => {
     _getFlowResults[projectRoot] = undefined;
     throw err;
   });
@@ -149,11 +149,11 @@ export function scanFileWithFlow(
     });
   }
 
-  getFlowResult(projectRoot).then(res => {
+  getFlowResult(projectRoot).then((res) => {
 
     callback(null, createCodeInspectionReport(fullPath, res));
 
-  }).catch(err => {
+  }).catch((err) => {
 
     if (err.name === 'TimeoutError') {
       return callback(null, {
