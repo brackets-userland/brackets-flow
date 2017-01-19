@@ -1,6 +1,6 @@
 {
   "name": "brackets-flow",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "title": "Flow",
   "description": "Adds Flow support to Brackets",
   "keywords": [
@@ -27,7 +27,7 @@
     "lint": "tslint -c tslint.json --project tsconfig.json"
   },
   "dependencies": {
-    "brackets-inspection-gutters": "^0.2.8",
+    "brackets-inspection-gutters": "^0.2.9",
     "cross-spawn": "^5.0.1"
   },
   "devDependencies": {
